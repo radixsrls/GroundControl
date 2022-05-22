@@ -40,6 +40,19 @@ async function processBlock(blockNum, sendQueueRepository: Repository<SendQueue>
     txids.push(tx.txid);
     if (tx.vout) {
       for (const output of tx.vout) {
+        if (output.scriptPubKey && output.scriptPubKey.address) {
+          addresses.push(output.scriptPubKey.address);
+          const payload: Components.Schemas.PushNotificationOnchainAddressGotPaid = {
+            address: output.scriptPubKey.address,
+            txid: tx.txid,
+            sat: Math.floor(output.value * 100000000),
+            type: 2,
+            level: "transactions",
+            token: "",
+            os: "ios",
+          };
+          allPotentialPushPayloadsArray.push(payload);
+        }        
         if (output.scriptPubKey && output.scriptPubKey.addresses) {
           for (const address of output.scriptPubKey.addresses) {
             addresses.push(address);
